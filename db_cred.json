@@ -1,0 +1,7 @@
+{
+    "PG_UN" : "wylyjpokgsezvr",
+    "PG_DB_NAME": "d2o4kp3msbmf9d",
+    "PG_DB_PW" : "1ecba722ff80eb65d7129fa641156ed2eed1f9edbaea68d794af42ce39ae4c91",
+    "DB_HOST" : "ec2-52-72-125-94.compute-1.amazonaws.com",
+    "PORT" : "5432"
+}
