@@ -8,7 +8,7 @@ from email.mime.image import MIMEImage
 port = 465  # For SSL
 smtp_server = "smtp.gmail.com"
 # Yyour address
-sender_email = "ramzj2.usm@gmail.com"
+sender_email = "Equipo de MyCapability <ramzj2.usm@gmail.com>"
 # Rreceiver address
 receiver_email = "martin.salinas.scussolin@gmail.com"
 #receiver_email = "ramzj2.usm@gmail.com"
