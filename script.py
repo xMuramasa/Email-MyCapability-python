@@ -8,7 +8,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.image import MIMEImage
 import datetime
 
-def sendEmail(receiver_email):
+def sendEmail(receiver_email, id):
     port = 465  # For SSL
     smtp_server = "smtp.gmail.com"
     # Yyour address
@@ -72,13 +72,11 @@ def parseRow(row):
     # new date
     todayDate = datetime.date.today()
 
-    d = datetime.timedelta(days= f * 7)
-
     newDate = abs((todayDate - reg).days)
 
     if newDate % f == 0:
         print('Se envia correo')
-        #sendEmail(row.email)
+        #sendEmail(row.email, row.id)
     else:
         print('fake')
 
@@ -87,10 +85,61 @@ conn = connect_ppg2()
 q = 'SELECT * FROM Users ORDER BY id ASC'
 df = create_df_from_ppg2(q,conn)
 
-q = 'SELECT * FROM results'
-df2 = create_df_from_ppg2(q,conn)
-
-print(df)
+#print(df)
 
 for i in range(df.shape[0]):
     parseRow(df.loc[i])
+
+query_down = """
+(SELECT t1.id, t1.user_id, t1.result, t1.type, t1.date
+                FROM results t1 
+                INNER JOIN
+                (
+                    SELECT Max(date) date, type
+                    FROM   results
+                    GROUP BY type
+                ) AS t2 
+                    ON t1.type = t2.type
+                    AND t1.date = t2.date 
+                    AND user_id={}
+                    AND t1.type = 0
+                ORDER BY t1.id DESC
+                LIMIT 2)
+
+                UNION ALL
+
+                (SELECT t1.id, t1.user_id, t1.result, t1.type, t1.date
+                FROM results t1 
+                INNER JOIN
+                (
+                    SELECT Max(date) date, type
+                    FROM   results
+                    GROUP BY type
+                ) AS t2 
+                    ON t1.type = t2.type
+                    AND t1.date = t2.date 
+                    AND user_id={}
+                    AND t1.type = 1
+                ORDER BY t1.id DESC
+                LIMIT 2)
+
+                UNION ALL
+
+                (SELECT t1.id, t1.user_id, t1.result, t1.type, t1.date
+                FROM results t1 
+                INNER JOIN
+                (
+                    SELECT Max(date) date, type
+                    FROM   results
+                    GROUP BY type
+                ) AS t2 
+                    ON t1.type = t2.type
+                    AND t1.date = t2.date 
+                    AND user_id={}
+                    AND t1.type = 2
+                ORDER BY t1.id DESC
+                LIMIT 2)"""
+
+
+df2 = create_df_from_ppg2(query_down.format(1,1,1),conn)
+print(df2)
