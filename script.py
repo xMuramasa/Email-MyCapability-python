@@ -103,7 +103,7 @@ def parseRow(row):
         print('era fake')
         return
     else:
-        f = int(f)*7
+        f = int(f)#*7
 
     # new date
     todayDate = datetime.date.today()
