@@ -8,6 +8,16 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.image import MIMEImage
 import datetime
 from q import query_down
+import json
+
+p1 = open("principiante.json")
+principiante = json.load(p1)
+
+p2 = open("intermedio.json")
+intermedio = json.load(p2)
+
+p3 = open("avanzado.json")
+avanzado = json.load(p3)
 
 
 def sendEmail(receiver_email, id):
@@ -26,7 +36,11 @@ def sendEmail(receiver_email, id):
     if dfVert.shape[0] > 1:
         if dfVert.loc[0].result != np.NaN and dfVert.loc[1].result != np.NaN:
             v = "Tu salto vertical ha mejorado en <b>{:10.4f}</b> metros"
-            v = v.format(dfVert.loc[0].result-dfVert.loc[1].result)
+            r = dfVert.loc[0].result-dfVert.loc[1].result
+            if r > 0:
+                v = v.format(r)
+            else:
+                v = 'No has mejorado, prueba saltar más :c'
         else: 
             v = 'No hay suficientes datos para ver si mejoraste, prueba saltar más :c'
     else:
@@ -35,7 +49,12 @@ def sendEmail(receiver_email, id):
     if dfHor.shape[0] > 1:
         if dfHor.loc[0].result != np.NaN and dfHor.loc[1].result != np.NaN:
             h = "Tu salto horizontal ha mejorado en <b>{:10.4f}</b> metros"
-            h = h.format(dfHor.loc[0].result-dfHor.loc[1].result)
+            r = dfHor.loc[0].result-dfHor.loc[1].result
+            if r > 0:
+                h = h.format(r)
+            else:
+                h = 'No has mejorado, prueba saltar más :c'
+
         else: 
             h = 'No hay suficientes datos para ver si mejoraste, prueba saltar más :c'
     else:
@@ -44,7 +63,11 @@ def sendEmail(receiver_email, id):
     if dfSpe.shape[0] > 1:
         if dfSpe.loc[0].result != np.NaN and dfSpe.loc[1].result != np.NaN:
             s = "Tu velocidad de sprint ha mejorado en <b>{:10.4f}</b> m/s"
-            s = s.format(dfSpe.loc[0].result-dfSpe.loc[1].result)
+            r = dfSpe.loc[0].result-dfSpe.loc[1].result
+            if r > 0:
+                s = s.format(s)
+            else:
+                s = 'No has mejorado, prueba correr más :c'
         else: 
             s = 'No hay suficientes datos para ver si mejoraste, prueba correr más :c'
     else:
@@ -54,11 +77,31 @@ def sendEmail(receiver_email, id):
     message["Subject"] = "Informe Periódico MyCapability"
     message["From"] = sender_email
     
-    #receiver_email = 'martin.salinas.scussolin@gmail.com'
+    receiver_email = 'martin.salinas.scussolin@gmail.com'
     message["To"] = receiver_email
 
+    ########### Consejos
+    rnk = np.ceil(df.shape[0] / 3)
+
+    scr = df[df['id']==id].index[0]
+    
+    advice = '0'
+
+    if scr < rnk:
+        advice = np.random.choice(principiante["principiante"])
+    elif scr < 2*rnk:
+        advice = np.random.choice(intermedio["intermedio"])
+    else:
+        advice = np.random.choice(avanzado["avanzado"])
+
+    t = "<strong>Nombre</strong>:<br>&emsp;&emsp;" + advice["titulo"]
+    d = "<br>"+"<strong>Descripción</strong>:<br>" + advice["descripcion"]
+    r = "<br>"+"<strong>Repeticiones</strong>:<br>&emsp;&emsp;" + advice["reps"]
+    tip = t+d+r
+
+    print(tip)
     html = codecs.open("mycap.html", 'r').read()
-    html = html.format(vertical=v,horizontal=h,velocidad=s)
+    html = html.format(rank=df[df['id']==id].index[0], vertical=v,horizontal=h,velocidad=s, tip=tip)
 
     # Turn these into plain/html MIMEText objects
     m = MIMEText(html, "html")
@@ -119,11 +162,12 @@ def parseRow(row):
 
 
 conn = connect_ppg2()
-q = 'SELECT * FROM Users ORDER BY id ASC'
-df = create_df_from_ppg2(q,conn)
+q = 'SELECT * FROM Users ORDER BY score desc'
+df = create_df_from_ppg2(q,conn).reset_index()
 
-# print(df.loc[0].id, df.loc[0].username, df.loc[0].email, '\n')
-# parseRow(df.loc[0])
+# print(df)
+print(df.loc[5].id, df.loc[5].username, df.loc[5].email, '\n')
+parseRow(df.loc[5])
 
-for i in range(df.shape[0]):
-    parseRow(df.loc[i])
+# for i in range(df.shape[0]):
+#     parseRow(df.loc[i])

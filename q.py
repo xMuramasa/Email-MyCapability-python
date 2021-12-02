@@ -8,7 +8,6 @@ query_down = """
                     GROUP BY type
                 ) AS t2 
                     ON t1.type = t2.type
-                    AND t1.date = t2.date 
                     AND user_id={}
                     AND t1.type = 0
                 ORDER BY t1.id DESC
@@ -25,7 +24,6 @@ query_down = """
                     GROUP BY type
                 ) AS t2 
                     ON t1.type = t2.type
-                    AND t1.date = t2.date 
                     AND user_id={}
                     AND t1.type = 1
                 ORDER BY t1.id DESC
@@ -42,7 +40,6 @@ query_down = """
                     GROUP BY type
                 ) AS t2 
                     ON t1.type = t2.type
-                    AND t1.date = t2.date 
                     AND user_id={}
                     AND t1.type = 2
                 ORDER BY t1.id DESC
